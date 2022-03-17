@@ -23,6 +23,7 @@ renderTemplate(tripNavigationElement, createSiteMenuTemplate(), RenderPosition.B
 renderTemplate(tripFiltersElement, createFiltersTemplate(), RenderPosition.BEFOREEND);
 renderTemplate(tripEventsElement, createSortTemplate(), RenderPosition.AFTERBEGIN);
 renderTemplate(tripEventsListElement, createEditFormTemplate(), RenderPosition.BEFOREEND);
+
 for (let i = 0; i < 3; i++){
   renderTemplate(tripEventsListElement, createWaypointTemplate(), RenderPosition.BEFOREEND);
 }
