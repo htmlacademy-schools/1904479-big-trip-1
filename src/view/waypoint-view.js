@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
+import {createElement} from '../render';
 
-export const createWaypointTemplate = (waypoint) => {
+const createWaypointTemplate = (waypoint) => {
   const {waypointType, city, price, isFavorite, startDate, endDate, duration, offers} = waypoint;
   const favoriteClass = isFavorite ? ' event__favorite-btn--active' : '';
   const startDay = dayjs(startDate).format('MMM D');
@@ -32,7 +33,6 @@ export const createWaypointTemplate = (waypoint) => {
     return `${mins}M`;
   };
   const convertedDuration = convertDuration();
-
   return `<li class="trip-events__item">
               <div class="event">
                 <time class="event__date" datetime="${beginDate}">${startDay}</time>
@@ -65,3 +65,28 @@ export const createWaypointTemplate = (waypoint) => {
               </div>
    </li>`;
 };
+
+export default class WaypointView {
+  #element = null;
+  #waypoint = null;
+
+  constructor(waypoint) {
+    this.#waypoint = waypoint;
+  }
+
+  get element() {
+    if (!this.#element){
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createWaypointTemplate(this.#waypoint);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
