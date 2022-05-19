@@ -1,4 +1,4 @@
-import {render, RenderPosition} from './render';
+import {render, RenderPosition, replace} from './utils/render';
 import SiteInfoView from './view/site-info-view';
 import SiteMenuView from './view/site-menu-view';
 import FiltersView from './view/filters-view';
@@ -11,6 +11,7 @@ import EmptyWaypointsListView from './view/empty-waypoints-list-view';
 
 const waypointCount = 15;
 const waypointsArray = Array.from({length: waypointCount}, generateWaypoint);
+
 const tripMainElement = document.querySelector('.trip-main');
 const tripNavigationElement = tripMainElement.querySelector('.trip-controls__navigation');
 const tripFiltersElement = tripMainElement.querySelector('.trip-controls__filters');
@@ -20,12 +21,15 @@ const tripEventsElement = document.querySelector('.trip-events');
 const renderWaypoint = (eventListElement, waypoint) => {
   const waypointComponent = new WaypointView(waypoint);
   const waypointEditComponent = new EditFormView(waypoint);
+
   const replaceWaypointToEdit = () => {
-    eventListElement.replaceChild(waypointEditComponent.element, waypointComponent.element);
+    replace(waypointEditComponent, waypointComponent);
   };
+
   const replaceEditToWaypoint = () => {
-    eventListElement.replaceChild(waypointComponent.element, waypointEditComponent.element);
+    replace(waypointComponent, waypointEditComponent);
   };
+
   const onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
@@ -33,37 +37,39 @@ const renderWaypoint = (eventListElement, waypoint) => {
       document.removeEventListener('keydown', onEscKeyDown);
     }
   };
-  waypointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+
+  waypointComponent.setEditClickHandler(() => {
     replaceWaypointToEdit();
     document.addEventListener('keydown', onEscKeyDown);
   });
 
-  waypointEditComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+  waypointEditComponent.setRollupClickHandler(() => {
     replaceEditToWaypoint();
   });
 
-  waypointEditComponent.element.querySelector('form').addEventListener('submit', (evt) => {
-    evt.preventDefault();
+  waypointEditComponent.setFormSubmit(() => {
     replaceEditToWaypoint();
     document.removeEventListener('keydown', onEscKeyDown);
   });
-  render(eventListElement, waypointComponent.element, RenderPosition.BEFOREEND);
+
+
+  render(eventListElement, waypointComponent, RenderPosition.BEFOREEND);
 };
 
 if (waypointsArray.length === 0) {
-  render(tripNavigationElement, new SiteMenuView().element,RenderPosition.BEFOREEND);
-  render(tripFiltersElement, new FiltersView().element, RenderPosition.BEFOREEND);
-  render(tripEventsElement, new EmptyWaypointsListView().element, RenderPosition.BEFOREEND);
+  render(tripNavigationElement, new SiteMenuView(),RenderPosition.BEFOREEND);
+  render(tripFiltersElement, new FiltersView(), RenderPosition.BEFOREEND);
+  render(tripEventsElement, new EmptyWaypointsListView(), RenderPosition.BEFOREEND);
 }
 else {
   const eventListComponent = new EventListView();
-  render(tripEventsElement, eventListComponent.element, RenderPosition.BEFOREEND);
+  render(tripEventsElement, eventListComponent, RenderPosition.BEFOREEND);
 
   const tripEventsListElement = tripEventsElement.querySelector('.trip-events__list');
-  render(tripMainElement, new SiteInfoView(waypointsArray).element, RenderPosition.AFTERBEGIN);
-  render(tripNavigationElement, new SiteMenuView().element,RenderPosition.BEFOREEND);
-  render(tripFiltersElement, new FiltersView().element, RenderPosition.BEFOREEND);
-  render(tripEventsListElement, new SortView().element, RenderPosition.AFTERBEGIN);
+  render(tripMainElement, new SiteInfoView(waypointsArray), RenderPosition.AFTERBEGIN);
+  render(tripNavigationElement, new SiteMenuView(),RenderPosition.BEFOREEND);
+  render(tripFiltersElement, new FiltersView(), RenderPosition.BEFOREEND);
+  render(tripEventsListElement, new SortView(), RenderPosition.AFTERBEGIN);
   for (let i = 0; i < waypointCount; i++){
     renderWaypoint(eventListComponent.element, waypointsArray[i]);
   }
