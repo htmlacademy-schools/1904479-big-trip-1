@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import {getRandomInt} from '../utils/common';
 import {nanoid} from 'nanoid';
 
+
 const generateDescription = () => {
   const texts = [
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
@@ -15,43 +16,38 @@ const generateDescription = () => {
     'Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus.',
     'In rutrum ac purus sit amet tempus.'
   ];
-
   const numberProposals = getRandomInt(1,5);
   let description = '';
 
   for (let i = 0; i < numberProposals; i++){
     description += texts[getRandomInt(0, texts.length - 1)];
   }
-
   return description;
 };
 
+const waypointTypes = [
+  'Taxi',
+  'Bus',
+  'Train',
+  'Ship',
+  'Drive',
+  'Flight',
+  'Check-in',
+  'Sightseeing',
+  'Restaurant'
+];
+
 const generateWaypointType = () => {
-  const waypointTypes = [
-    'Taxi',
-    'Bus',
-    'Train',
-    'Ship',
-    'Drive',
-    'Flight',
-    'Check-in',
-    'Sightseeing',
-    'Restaurant'
-  ];
-
   const randomInt = getRandomInt(0, waypointTypes.length - 1);
-
   return waypointTypes[randomInt];
 };
 
 const generatePhotos = () => {
   const numberOfPhotos = getRandomInt(1, 5);
   const photos = [];
-
   for (let i = 0; i < numberOfPhotos; i++){
     photos.push(`http://picsum.photos/248/152?r=${getRandomInt(10, 50)}`);
   }
-
   return photos;
 };
 
@@ -64,73 +60,43 @@ const generateCity = () => {
     'Bangkok',
     'Baku'
   ];
-
   return cities[getRandomInt(0, cities.length - 1)];
 };
 
 const generateOffers = () => {
-  const offers = [
-    {
-      offerType: 'luggage',
-      name: 'Add luggage',
-      price: 30,
-      isChosen: Boolean(getRandomInt(0,1))
-    },
-    {
-      offerType: 'comfort class',
-      name: 'Switch to comfort',
-      price: 100,
-      isChosen: Boolean(getRandomInt(0,1))
-    },
-    {
-      offerType: 'meal',
-      name: 'Add meal',
-      price: 15,
-      isChosen: Boolean(getRandomInt(0,1))
-    },
-    {
-      offerType: 'seats choice',
-      name: 'Choose seats',
-      price: 5,
-      isChosen: Boolean(getRandomInt(0,1))
-    },
-    {
-      offerType: 'train travel',
-      name: 'Travel by train',
-      price: 40,
-      isChosen: Boolean(getRandomInt(0,1))
-    },
-    {
-      offerType: 'car',
-      name: 'Rent a car',
-      price: 200,
-      isChosen: Boolean(getRandomInt(0,1))
-    },
-    {
-      offerType: 'breakfast',
-      name: 'Add breakfast',
-      price: 40,
-      isChosen: Boolean(getRandomInt(0,1))
-    },
-    {
-      offerType: 'lunch',
-      name: 'Lunch in city',
-      price: 55,
-      isChosen: Boolean(getRandomInt(0,1))
-    },
-  ];
+  const result = [];
 
-  const numberOfOffers = getRandomInt(0, 5);
-  const selectedOffers = [];
+  for (const type of waypointTypes) {
+    const offers = [];
+    const titles = [
+      'Add luggage',
+      'Order Uber',
+      'Switch to comfort',
+      'Rent a car',
+      'Add breakfast',
+      'Book tickets',
+      'Lunch in city'
+    ];
 
-  while (selectedOffers.length < numberOfOffers){
-    const current = Math.floor(Math.random() * offers.length);
-    if (selectedOffers.indexOf(offers[current]) === -1) {
-      selectedOffers.push(offers[current]);
+    for (let j = 0; j < getRandomInt(0, 5); j++) {
+      const nextTitle = titles[getRandomInt(0, titles.length - 1)];
+      offers.push(
+        {
+          id: j + 1,
+          title: nextTitle,
+          price: getRandomInt(10, 150),
+          isActive: Boolean(getRandomInt(0, 1))
+        });
+      titles.splice(titles.indexOf(nextTitle), 1);
     }
+
+    result.push({
+      type,
+      offers
+    });
   }
 
-  return selectedOffers;
+  return result;
 };
 
 export const generateDates = () => {
@@ -144,7 +110,6 @@ export const generateDates = () => {
     .add(getRandomInt(0, maxGap), 'day')
     .add(getRandomInt(0, 59), 'hour')
     .add(getRandomInt(0, 59), 'minute');
-
   return {
     start: startDate.toDate(),
     end: endDate.toDate()
