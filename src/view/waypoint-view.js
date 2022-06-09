@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import AbstractView from './abstract-view';
+import {createOffersTemplate} from '../utils/offers-utils';
 
 const createWaypointTemplate = (waypoint) => {
   const {waypointType, city, price, isFavorite, startDate, endDate, duration, offers} = waypoint;
@@ -10,16 +11,6 @@ const createWaypointTemplate = (waypoint) => {
   const startDatetime = dayjs(startDate).format('YYYY-MM-DDTHH:mm');
   const endTime = dayjs(endDate).format('HH:mm');
   const endDatetime = dayjs(endDate).format('YYYY-MM-DDTHH:mm');
-  const createOfferElement = (offer) => {
-    if (offer.isChosen) {
-      return `<li class="event__offer">
-                    <span class="event__offer-title">${offer.name}</span>
-                    &plus;&euro;&nbsp;
-                    <span class="event__offer-price">${offer.price}</span>
-                  </li>`;
-    }
-  };
-  const offerElements = offers.map(createOfferElement).join('');
   const convertDuration = () => {
     const days = duration.days ? String(duration.days).padStart(2, '0') : 0;
     const hours = duration.hours ? String(duration.hours).padStart(2, '0') : 0;
@@ -33,6 +24,7 @@ const createWaypointTemplate = (waypoint) => {
     return `${mins}M`;
   };
   const convertedDuration = convertDuration();
+
   return `<li class="trip-events__item">
               <div class="event">
                 <time class="event__date" datetime="${beginDate}">${startDay}</time>
@@ -51,8 +43,7 @@ const createWaypointTemplate = (waypoint) => {
                 <p class="event__price">
                   &euro;&nbsp;<span class="event__price-value">${price}</span>
                 </p>
-                <h4 class="visually-hidden">Offers:</h4>
-                <ul class="event__selected-offers">${offerElements}</ul>
+                ${createOffersTemplate(offers, waypointType)}
                 <button class="event__favorite-btn${favoriteClass}" type="button">
                   <span class="visually-hidden">Add to favorite</span>
                   <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -73,7 +64,6 @@ export default class WaypointView extends AbstractView{
     super();
     this.#waypoint = waypoint;
   }
-
 
   get template() {
     return createWaypointTemplate(this.#waypoint);
@@ -99,4 +89,3 @@ export default class WaypointView extends AbstractView{
     this._callback.editClick();
   }
 }
-
