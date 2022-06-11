@@ -1,15 +1,16 @@
 import SmartView from './smart-view';
 import dayjs from 'dayjs';
-import { servises } from '../mock/point';
+import { services } from '../mock/point';
 import flatpickr from 'flatpickr';
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
+import he from 'he';
 
 
-const createOfferForm = (point) => {
+const createEditForm = (point) => {
   const {pointType, destination, destinationInfo, dateStartEvent, dateEndEvent, price} = point;
   const startEventTime = dayjs(dateStartEvent).format('DD/MM/YY H:m');
   const endEventTime = dayjs(dateEndEvent).format('DD/MM/YY H:m');
-  const offersForm = servises[point.pointType];
+  const offersForm = services[point.pointType];
 
   return `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
@@ -66,12 +67,15 @@ const createOfferForm = (point) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${pointType}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(destination)}" list="destination-list-1">
             <datalist id="destination-list-1">
               <option value="Amsterdam"></option>
               <option value="Geneva"></option>
-              <option value="Chamonix"></option>
-            </datalist>
+              <option value="Moscow"></option>
+              <option value="Yekaterinburg"></option>
+              <option value="Bangkok"></option>
+              <option value="Baku"></option>
+              </datalist>
           </div>
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
@@ -85,10 +89,10 @@ const createOfferForm = (point) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
+            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}">
           </div>
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Cancel</button>
+          <button class="event__reset-btn" type="reset">Delete</button>
         </header>
         <section class="event__details">
           <section class="event__section  event__section--offers">
@@ -151,12 +155,14 @@ export default class EditFormView extends SmartView {
 
     this.setFormClickHandler();
     this.setEditDestinationForm();
+    this.setFormSubmitHandler();
+    this.#setEditPriceForm();
 
-    this.#SetDatePicker();
+    this.#setDatePicker();
   }
 
   get template() {
-    return createOfferForm(this._data);
+    return createEditForm(this._data);
   }
 
   setFormSubmitHandler = (callback) => {
@@ -169,12 +175,33 @@ export default class EditFormView extends SmartView {
     this._callback.formSubmit(this._data);
   }
 
-  #SetDatePicker = () => {
+  setFormDeleteHandler = (callback) => {
+    this._callback.formDelete = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteHandler);
+  }
+
+  #formDeleteHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formDelete(this._data);
+  }
+
+  #setEditPriceForm = () => {
+    this.element.querySelector('.event--edit')
+      .addEventListener('submit', this.#updatePriceHandler);
+  }
+
+  #updatePriceHandler = (evt) => {
+    evt.preventDefault();
+    const priceValue = this.element.querySelector('.event__input--price').value;
+    this.updateData({price : priceValue});
+  }
+
+  #setDatePicker = () => {
     this.#setDatePickerStart();
     this.#setDatePickerEnd();
   }
 
-  #setDatePickerStart =()=>{
+  #setDatePickerStart =()=> {
     this.#datepicker = flatpickr(
       this.element.querySelector('#event-start-time-1'),
       {
@@ -188,7 +215,7 @@ export default class EditFormView extends SmartView {
     );
   }
 
-  #setDatePickerEnd =()=>{
+  #setDatePickerEnd =()=> {
     this.#datepicker = flatpickr(
       this.element.querySelector('#event-end-time-1'),
       {
@@ -213,7 +240,7 @@ export default class EditFormView extends SmartView {
     });
   }
 
-  removeElement =() =>{
+  removeElement =() => {
     super.removeElement();
 
     if(this.#datepicker){
@@ -222,7 +249,7 @@ export default class EditFormView extends SmartView {
     }
   }
 
-  updateElement = () =>{
+  updateElement = () => {
     const prevElement = this.element;
     const parent = prevElement.parentElement;
     this.removeElement();
@@ -231,14 +258,15 @@ export default class EditFormView extends SmartView {
     parent.replaceChild(newElement, prevElement);
     this.renderOffers(this._pointType);
 
-    this.#restoreHandlers();
+    this._restoreHandlers();
   }
 
-  #restoreHandlers = ()=>{
+  _restoreHandlers = () => {
     this.setFormClickHandler();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setEditDestinationForm();
-    this.#SetDatePicker();
+    this.#setEditPriceForm();
+    this.#setDatePicker();
   }
 
   updateData = (update) => {
