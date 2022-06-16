@@ -1,55 +1,35 @@
-import AbstractView from './abstract-view';
-import { generateDescription,  generatePictures, isEqualCities, services} from '../mock/point';
-import { nanoid } from 'nanoid';
+import AbstractView from './abstract-view.js';
 
-export default class SmartView extends AbstractView{
-    _data = {};
-    _pointType = null;
-    initialData = null;
+export default class SmartView extends AbstractView {
+  _data = {};
 
-    reset = (point) =>{
-      this.updateData({...point,
-        destination : point.destination,
-        destinationInfo : {description: point.destinationInfo.description,
-          pictures : point.destinationInfo.pictures},
-        id: nanoid()});
-      this.renderOffers(point.pointType);
+  updateData = (update, justDataUpdating) => {
+    if (!update) {
+      return;
     }
 
-    setFormClickHandler = () => {
-      (this.element.querySelectorAll('.event__type-input'))
-        .forEach((element) => {
-          element.addEventListener('click', this.#updateClickHandler);
-        });
+    this._data = {...this._data, ...update};
+
+    if (justDataUpdating) {
+      return;
     }
 
-    setEditDestinationForm = () => {
-      this.element.querySelector('.event__input--destination')
-        .addEventListener('input', this.#updateDestinationHandler);
-    }
+    this.updateElement();
+  }
 
-    #updateDestinationHandler = (evt) => {
-      evt.preventDefault();
-      if(isEqualCities(evt.target.value)){
-        this.updateData({destination : evt.target.value, destinationInfo : {description: generateDescription(),
-          pictures : generatePictures()}});
-      }
-    }
+  updateElement = () => {
+    const prevElement = this.element;
+    const parent = prevElement.parentElement;
+    this.removeElement();
 
-    #updateClickHandler = (evt) => {
-      evt.preventDefault();
-      this._pointType = evt.target.value;
-      this.updateData({pointType : this._pointType});
-    }
+    const newElement = this.element;
 
-    renderOffers = (pointDestination) => {
-      const count = services[pointDestination].length;
-      const offers = this.element.querySelectorAll('.event__offer-selector');
-      for(let i = 0; i < 3; i++){
-        offers[i].classList.add('visually-hidden');
-      }
-      for(let i = 0; i < count; i++){
-        offers[i].classList.remove('visually-hidden');
-      }
-    }
+    parent.replaceChild(newElement, prevElement);
+
+    this.restoreHandlers();
+  }
+
+  restoreHandlers = () => {
+    throw new Error('Abstract method not implemented: restoreHandlers');
+  }
 }
