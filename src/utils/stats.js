@@ -69,7 +69,7 @@ const countTimeSpend = (countTypesInMs) => {
   } else {
     timeSpend = `${spentDays} ${spentHours} ${spentMinutes}`;
   }
-  
+
   return timeSpend;
 };
 

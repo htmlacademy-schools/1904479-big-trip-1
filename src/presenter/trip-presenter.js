@@ -5,7 +5,7 @@ import PointPresenter from './point-presenter.js';
 import PointNewPresenter from './point-new-presenter.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
 import {sortTaskByDay, sortTaskByDuration, sortTaskByPrice} from '../utils/point-sort.js';
-import {filter} from '../utils/filter';
+import {filter} from '../utils/filter.js';
 import {SortType, UpdateType, UserAction, FilterType} from '../utils/const.js';
 
 export default class TripPresenter {
